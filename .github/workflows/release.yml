@@ -1,0 +1,74 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
+
+      - name: Setup Rust
+        run: |
+          rustup update stable
+          rustup default stable
+
+      - name: Check formatting
+        run: cargo fmt --check
+
+      - name: Build
+        run: cargo build --release --locked
+
+      - name: Verify version
+        run: |
+          CARGO_VERSION=$(cargo pkgid | cut -d# -f2)
+          TAG_VERSION=${GITHUB_REF_NAME#v}
+          if [ "$CARGO_VERSION" != "$TAG_VERSION" ]; then
+            echo "Version mismatch: Cargo.toml=$CARGO_VERSION, tag=$TAG_VERSION"
+            exit 1
+          fi
+
+      - name: Create tarball
+        run: |
+          tar -czvf macnetmon-${{ github.ref_name }}.tar.gz -C target/release macnetmon -C ${{ github.workspace }} README.md LICENSE
+
+      - name: Install git-cliff
+        run: cargo install git-cliff
+
+      - name: Generate changelog
+        run: git cliff --latest --strip header > CHANGELOG.md
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: macnetmon-${{ github.ref_name }}.tar.gz
+          body_path: CHANGELOG.md
+          generate_release_notes: false
+
+      - name: Update Homebrew tap
+        uses: mislav/bump-homebrew-formula-action@v3
+        with:
+          formula-name: macnetmon
+          homebrew-tap: mdsakalu/homebrew-tap
+          download-url: https://github.com/mdsakalu/macnetmon/releases/download/${{ github.ref_name }}/macnetmon-${{ github.ref_name }}.tar.gz
+        env:
+          COMMITTER_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}

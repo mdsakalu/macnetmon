@@ -1,0 +1,17 @@
+# Build artifacts
+/target/
+
+# macOS
+.DS_Store
+
+# Temporary/reference files
+.tmp/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Claude Code
+.claude/
