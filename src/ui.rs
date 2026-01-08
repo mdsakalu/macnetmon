@@ -132,7 +132,7 @@ fn render_split_sparkline(
         return;
     }
 
-    let up_rows = height / 2;
+    let up_rows = (height + 1) / 2;
     let down_rows = height.saturating_sub(up_rows);
     let baseline_y = inner.top() + up_rows;
     let up_units = up_rows as u64 * 8;
@@ -249,12 +249,21 @@ fn bordered_block<'a>(
 fn render_overview(f: &mut Frame<'_>, area: ratatui::layout::Rect, app: &App) {
     let total = app.total_rx + app.total_tx;
     let colors = app.colors();
-    let details = format!(
-        "RX {}  TX {}",
-        format_rate(app.total_rx, app.display.show_bits),
-        format_rate(app.total_tx, app.display.show_bits)
-    );
-    let label_l = title_line_bold("All Interfaces", &format!(" {details}"), colors.pane);
+    let label_l = {
+        let rx = format_rate(app.total_rx, app.display.show_bits);
+        let tx = format_rate(app.total_tx, app.display.show_bits);
+        let mut spans = Vec::new();
+        spans.push(Span::styled(
+            " All Interfaces",
+            bold_title_style(colors.pane),
+        ));
+        spans.push(Span::raw("  "));
+        spans.push(Span::styled(format!("RX {rx}"), app.rx_style()));
+        spans.push(Span::raw("  "));
+        spans.push(Span::styled(format!("TX {tx}"), app.tx_style()));
+        spans.push(Span::raw(" "));
+        Line::from(spans)
+    };
     let label_r = Some(
         title_line(&format!(
             "Total {}",
@@ -335,12 +344,19 @@ fn render_interface(f: &mut Frame<'_>, area: ratatui::layout::Rect, app: &App, i
 
     let colors = app.colors();
     let label_l_line = {
-        let rest = format!(
-            "  RX {}  TX {}",
-            format_rate(iface.rx_rate, app.display.show_bits),
-            format_rate(iface.tx_rate, app.display.show_bits)
-        );
-        title_line_bold(&name_display, &rest, colors.tile)
+        let rx = format_rate(iface.rx_rate, app.display.show_bits);
+        let tx = format_rate(iface.tx_rate, app.display.show_bits);
+        let mut spans = Vec::new();
+        spans.push(Span::styled(
+            format!(" {}", name_display),
+            bold_title_style(colors.tile),
+        ));
+        spans.push(Span::raw("  "));
+        spans.push(Span::styled(format!("RX {rx}"), app.rx_style()));
+        spans.push(Span::raw("  "));
+        spans.push(Span::styled(format!("TX {tx}"), app.tx_style()));
+        spans.push(Span::raw(" "));
+        Line::from(spans)
     };
     let label_r_line = Some(title_line(&label_r).alignment(Alignment::Right));
     let block = bordered_block(
