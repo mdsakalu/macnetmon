@@ -7,6 +7,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: macos-latest
@@ -15,25 +19,17 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Cache cargo
-        uses: actions/cache@v5
+      - uses: dtolnay/rust-toolchain@stable
         with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: ${{ runner.os }}-cargo-
+          components: rustfmt, clippy
 
-      - name: Setup Rust
-        run: |
-          rustup update stable
-          rustup default stable
+      - uses: Swatinem/rust-cache@v2
 
       - name: Check formatting
         run: cargo fmt --check
+
+      - name: Clippy
+        run: cargo clippy --all-targets --all-features -- -D warnings
 
       - name: Build
         run: cargo build --release --locked
@@ -52,7 +48,9 @@ jobs:
           tar -czvf macnetmon-${{ github.ref_name }}.tar.gz -C target/release macnetmon -C ${{ github.workspace }} README.md LICENSE
 
       - name: Install git-cliff
-        run: cargo install git-cliff
+        uses: taiki-e/install-action@v2
+        with:
+          tool: git-cliff
 
       - name: Generate changelog
         run: git cliff --latest --strip header > CHANGELOG.md

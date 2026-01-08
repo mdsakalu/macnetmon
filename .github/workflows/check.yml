@@ -9,6 +9,12 @@ on:
       - "Cargo.toml"
       - "Cargo.lock"
       - "src/**"
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   check:
@@ -16,22 +22,11 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Cache cargo
-        uses: actions/cache@v5
+      - uses: dtolnay/rust-toolchain@stable
         with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: ${{ runner.os }}-cargo-
+          components: rustfmt, clippy
 
-      - name: Setup Rust
-        run: |
-          rustup update stable
-          rustup default stable
+      - uses: Swatinem/rust-cache@v2
 
       - name: Check formatting
         run: cargo fmt --check
