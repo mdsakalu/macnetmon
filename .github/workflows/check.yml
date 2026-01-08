@@ -48,7 +48,7 @@ jobs:
           tar -czvf macnetmon-${BRANCH_NAME}.tar.gz -C target/release macnetmon -C ${{ github.workspace }} README.md LICENSE
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: macnetmon-${{ github.ref_name }}
           path: macnetmon-*.tar.gz
