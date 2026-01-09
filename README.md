@@ -6,10 +6,12 @@ Network interface bandwidth monitor for macOS
 
 [<img src="https://img.shields.io/github/actions/workflow/status/mdsakalu/macnetmon/check.yml?label=build" />](https://github.com/mdsakalu/macnetmon/actions)
 [<img src="https://img.shields.io/github/v/release/mdsakalu/macnetmon?label=release" />](https://github.com/mdsakalu/macnetmon/releases/latest)
+[<img src="https://img.shields.io/crates/v/macnetmon?label=crates.io" />](https://crates.io/crates/macnetmon)
 [<img src="https://img.shields.io/github/downloads/mdsakalu/macnetmon/total?label=downloads" />](https://github.com/mdsakalu/macnetmon/releases)
-[<img src="https://img.shields.io/badge/MSRV-1.70-blue" />](https://www.rust-lang.org)
+[<img src="https://img.shields.io/badge/Rust-1.70+-black?logo=rust" />](https://www.rust-lang.org)
 [<img src="https://img.shields.io/badge/platform-macOS-lightgrey" />](https://www.apple.com/macos)
 [<img src="https://img.shields.io/github/license/mdsakalu/macnetmon" />](LICENSE)
+[<img src="https://img.shields.io/badge/Homebrew-mdsakalu/tap/macnetmon-orange?logo=homebrew" />](https://github.com/mdsakalu/homebrew-tap)
 
 [<img src="https://img.shields.io/badge/Built_With-Ratatui-blue?logo=ratatui" />](https://ratatui.rs/)
 
