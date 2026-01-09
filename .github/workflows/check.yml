@@ -37,14 +37,24 @@ jobs:
       - name: Build
         run: cargo build --release --locked
 
-      - name: Create artifact
+      - name: Compute artifact name
+        id: artifact
+        if: github.event_name != 'pull_request'
         run: |
-          BRANCH_NAME=${GITHUB_REF##*/}
-          tar -czvf macnetmon-${BRANCH_NAME}.tar.gz -C target/release macnetmon -C ${{ github.workspace }} README.md LICENSE
+          REF="${GITHUB_REF_NAME:-${GITHUB_REF##*/}}"
+          SAFE_REF=$(echo "$REF" | tr '/\\' '-')
+          echo "safe_ref=$SAFE_REF" >> "$GITHUB_OUTPUT"
+
+      - name: Create artifact
+        if: github.event_name != 'pull_request'
+        run: |
+          SAFE_REF="${{ steps.artifact.outputs.safe_ref }}"
+          tar -czvf macnetmon-${SAFE_REF}.tar.gz -C target/release macnetmon -C ${{ github.workspace }} README.md LICENSE
 
       - name: Upload artifact
         uses: actions/upload-artifact@v6
+        if: github.event_name != 'pull_request'
         with:
-          name: macnetmon-${{ github.ref_name }}
-          path: macnetmon-*.tar.gz
+          name: macnetmon-${{ steps.artifact.outputs.safe_ref }}
+          path: macnetmon-${{ steps.artifact.outputs.safe_ref }}.tar.gz
           retention-days: 7
