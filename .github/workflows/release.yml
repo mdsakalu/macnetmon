@@ -62,7 +62,7 @@ jobs:
         run: git cliff --latest --strip header > CHANGELOG.md
 
       - name: Create release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: macnetmon-${{ github.ref_name }}.tar.gz
           body_path: CHANGELOG.md
