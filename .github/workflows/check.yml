@@ -17,6 +17,28 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  msrv:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Read MSRV
+        id: msrv
+        run: |
+          MSRV=$(sed -n 's/^rust-version = "\(.*\)"/\1/p' Cargo.toml)
+          test -n "$MSRV"
+          echo "version=$MSRV" >> "$GITHUB_OUTPUT"
+
+      - uses: dtolnay/rust-toolchain@master
+        id: toolchain
+        with:
+          toolchain: ${{ steps.msrv.outputs.version }}
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Check minimum supported Rust version
+        run: cargo +${{ steps.toolchain.outputs.name }} check --all-targets --all-features --locked
+
   check:
     runs-on: macos-latest
     steps:
@@ -42,7 +64,8 @@ jobs:
         if: github.event_name != 'pull_request'
         run: |
           REF="${GITHUB_REF_NAME:-${GITHUB_REF##*/}}"
-          SAFE_REF=$(echo "$REF" | tr '/\\' '-')
+          SAFE_REF="${REF//\//-}"
+          SAFE_REF="${SAFE_REF//\\/-}"
           echo "safe_ref=$SAFE_REF" >> "$GITHUB_OUTPUT"
 
       - name: Create artifact

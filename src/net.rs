@@ -83,7 +83,7 @@ pub fn load_interface_aliases() -> io::Result<HashMap<String, String>> {
         .output()?;
 
     if !output.status.success() {
-        return Err(io::Error::new(io::ErrorKind::Other, "networksetup failed"));
+        return Err(io::Error::other("networksetup failed"));
     }
 
     let stdout = String::from_utf8_lossy(&output.stdout);
