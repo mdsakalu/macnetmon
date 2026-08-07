@@ -24,6 +24,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy
+          targets: aarch64-apple-darwin,x86_64-apple-darwin
 
       - uses: Swatinem/rust-cache@v2
 
@@ -33,8 +34,8 @@ jobs:
       - name: Clippy
         run: cargo clippy --all-targets --all-features -- -D warnings
 
-      - name: Build
-        run: cargo build --release --locked
+      - name: Build universal macOS binary
+        run: make build-universal
 
       - name: Verify version
         run: |
@@ -53,7 +54,7 @@ jobs:
 
       - name: Create tarball
         run: |
-          tar -czvf macnetmon-${{ github.ref_name }}.tar.gz -C target/release macnetmon -C ${{ github.workspace }} README.md LICENSE
+          tar -czvf macnetmon-${{ github.ref_name }}.tar.gz -C target/universal-apple-darwin/release macnetmon -C ${{ github.workspace }} README.md LICENSE
 
       - name: Install git-cliff
         uses: taiki-e/install-action@v2

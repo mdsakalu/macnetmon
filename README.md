@@ -54,6 +54,9 @@ Inspired by [macmon](https://github.com/vladkens/macmon), which monitors Apple S
 brew install mdsakalu/tap/macnetmon
 ```
 
+The Homebrew release binary is universal and runs natively on Apple Silicon
+and 64-bit Intel Macs.
+
 ### Cargo
 
 ```sh
@@ -118,7 +121,7 @@ Default interval is 1000ms if no config exists.
 
 ## Requirements
 
-- macOS (uses macOS-specific APIs via libc)
+- macOS on Apple Silicon or 64-bit Intel (uses macOS-specific APIs via libc)
 - Rust 1.88+ (for building from source)
 
 ## Contributing
