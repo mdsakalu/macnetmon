@@ -38,7 +38,9 @@ jobs:
 
       - name: Verify version
         run: |
-          CARGO_VERSION=$(cargo pkgid | cut -d# -f2)
+          CARGO_PKGID=$(cargo pkgid)
+          CARGO_VERSION=${CARGO_PKGID##*@}
+          CARGO_VERSION=${CARGO_VERSION##*#}
           TAG_VERSION=${GITHUB_REF_NAME#v}
           if [ "$CARGO_VERSION" != "$TAG_VERSION" ]; then
             echo "Version mismatch: Cargo.toml=$CARGO_VERSION, tag=$TAG_VERSION"
