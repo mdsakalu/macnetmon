@@ -52,7 +52,7 @@ jobs:
           tar -czvf macnetmon-${SAFE_REF}.tar.gz -C target/release macnetmon -C ${{ github.workspace }} README.md LICENSE
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: github.event_name != 'pull_request'
         with:
           name: macnetmon-${{ steps.artifact.outputs.safe_ref }}
