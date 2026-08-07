@@ -8,6 +8,7 @@ on:
       - ".github/workflows/*.yml"
       - "Cargo.toml"
       - "Cargo.lock"
+      - "Makefile"
       - "src/**"
   pull_request:
     branches: [main]
@@ -33,11 +34,14 @@ jobs:
         id: toolchain
         with:
           toolchain: ${{ steps.msrv.outputs.version }}
+          targets: aarch64-apple-darwin,x86_64-apple-darwin
 
       - uses: Swatinem/rust-cache@v2
 
       - name: Check minimum supported Rust version
-        run: cargo +${{ steps.toolchain.outputs.name }} check --all-targets --all-features --locked
+        run: |
+          cargo +${{ steps.toolchain.outputs.name }} check --all-targets --all-features --locked --target aarch64-apple-darwin
+          cargo +${{ steps.toolchain.outputs.name }} check --all-targets --all-features --locked --target x86_64-apple-darwin
 
   check:
     runs-on: macos-latest
@@ -47,6 +51,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy
+          targets: aarch64-apple-darwin,x86_64-apple-darwin
 
       - uses: Swatinem/rust-cache@v2
 
@@ -56,8 +61,8 @@ jobs:
       - name: Clippy
         run: cargo clippy --all-targets --all-features -- -D warnings
 
-      - name: Build
-        run: cargo build --release --locked
+      - name: Build universal macOS binary
+        run: make build-universal
 
       - name: Compute artifact name
         id: artifact
@@ -72,7 +77,7 @@ jobs:
         if: github.event_name != 'pull_request'
         run: |
           SAFE_REF="${{ steps.artifact.outputs.safe_ref }}"
-          tar -czvf macnetmon-${SAFE_REF}.tar.gz -C target/release macnetmon -C ${{ github.workspace }} README.md LICENSE
+          tar -czvf macnetmon-${SAFE_REF}.tar.gz -C target/universal-apple-darwin/release macnetmon -C ${{ github.workspace }} README.md LICENSE
 
       - name: Upload artifact
         uses: actions/upload-artifact@v7
