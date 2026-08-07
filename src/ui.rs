@@ -132,7 +132,7 @@ fn render_split_sparkline(
         return;
     }
 
-    let up_rows = (height + 1) / 2;
+    let up_rows = height.div_ceil(2);
     let down_rows = height.saturating_sub(up_rows);
     let baseline_y = inner.top() + up_rows;
     let up_units = up_rows as u64 * 8;
@@ -523,7 +523,7 @@ fn render_group(
 
     let max_cols = (list_area.width / MIN_TILE_WIDTH).max(1) as usize;
     let cols = visible.len().min(max_cols).max(1);
-    let rows = (visible.len() + cols - 1) / cols;
+    let rows = visible.len().div_ceil(cols);
     if rows == 0 {
         return;
     }

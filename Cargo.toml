@@ -9,7 +9,7 @@ license = "MIT"
 readme = "README.md"
 keywords = ["macos", "network", "monitor", "tui", "bandwidth"]
 categories = ["command-line-utilities", "visualization"]
-rust-version = "1.70"
+rust-version = "1.88"
 
 [dependencies]
 clap = { version = "4.6", features = ["derive"] }
